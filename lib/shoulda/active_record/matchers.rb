@@ -14,6 +14,7 @@ require 'shoulda/active_record/matchers/have_db_index_matcher'
 require 'shoulda/active_record/matchers/have_readonly_attribute_matcher'
 require 'shoulda/active_record/matchers/allow_mass_assignment_of_matcher'
 require 'shoulda/active_record/matchers/have_named_scope_matcher'
+require 'shoulda/active_record/matchers/delegate_to_matcher'
 
 
 module Shoulda # :nodoc:

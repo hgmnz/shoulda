@@ -2,11 +2,37 @@ module Shoulda # :nodoc:
   module ActiveRecord # :nodoc:
     module Matchers
 
+      # Ensure that the message is delegated to an associated model,
+      # constant, instance variable or class variable.
+      #
+      # it { should delegate(:name).to(:parent) }
+      # it { should delegate(:name).to(:parent).with_prefix(:parent) }
+      # it { should delegate(:name).to(:parent).with_allowed_nil }
+      # it { should delegate(:name).to(:@ivar) }
+      # it { should delegate(:name).to(:@@class_var) }
+      # it { should delegate(:name).to(:CONSTANT) }
+      #
+
       def delegate(message)
         DelegateToMatcher.new(message)
       end
 
       class DelegateToMatcher
+
+        # Ensures that the message is delegated to the
+        # associated model by testing that:
+        # * The target responds to the message
+        # * The message is sent to the target
+        # * The result of the call to the subject and
+        # the target are the same.
+        #
+        # Options:
+        # * <tt>to</tt> - association target name
+        # * <tt>with_prefix</tt> - tests that the :prefix option is
+        #   used by the delegate call.
+        # * <tt>with_allowed_nil</tt> - tests that the :allow_nil 
+        #   option is used by the delegate call.
+        #
 
         def initialize(message)
           @message = message

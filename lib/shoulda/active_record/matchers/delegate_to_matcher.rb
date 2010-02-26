@@ -20,10 +20,11 @@ module Shoulda # :nodoc:
       class DelegateToMatcher
 
         # Ensures that the message is delegated to the
-        # associated model by testing that:
+        # associated model, constant, instance variable
+        # or class variable by testing that:
         # * The target responds to the message
-        # * The message is sent to the target
-        # * The result of the call to the subject and
+        # * The target receives the message
+        # * The result of the message call to the subject and
         # the target are the same.
         #
         # Options:

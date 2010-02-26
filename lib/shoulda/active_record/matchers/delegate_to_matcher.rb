@@ -72,26 +72,62 @@ module Shoulda # :nodoc:
 
         def matches?(subject)
           @subject = subject
-          target_responds_to_message? &&
-          target_receives_message? &&
-          subject_and_target_match_message_result?
+          if @subject.class.reflect_on_association(@target)
+            match_for_associated_model?
+          elsif @subject.instance_variables.include?(@target.to_s)
+            match_for_instance_variable?
+          end
         end
+
+        def match_for_associated_model?
+          association_responds_to_message? &&
+          associated_model_receives_message? &&
+          subject_and_associated_model_match_message_result?
+        end
+
+        def match_for_instance_variable?
+          instance_variable_responds_to_message? &&
+            instance_variable_receives_message? &&
+            subject_and_instance_variable_match_message_result?
+        end
+
+        def match_for_class_variable?
+        end
+
+        def match_for_constant?
+        end
+
 
         private
 
-        def target_responds_to_message?
+        def association_responds_to_message?
           @subject.send(@target).respond_to?(@message)
         end
 
-        def target_receives_message?
+        def instance_variable_responds_to_message?
+          @subject.instance_variable_get(@target.to_s).respond_to?(@message)
+        end
+
+        def associated_model_receives_message?
           expectation = @subject.__send__(@target).expects(@message).at_least_once
           @subject.__send__(@message)
           expectation.verified?
         end
 
-        def subject_and_target_match_message_result?
+        def instance_variable_receives_message?
+          expectation = @subject.instance_variable_get(@target.to_s).expects(@message).at_least_once
+          @subject.__send__(@message)
+          expectation.verified?
+        end
+
+        def subject_and_associated_model_match_message_result?
           @subject.__send__(@message) ==
             @subject.__send__(@target).__send__(@message)
+        end
+
+        def subject_and_instance_variable_match_message_result?
+          @subject.__send__(@message) ==
+            @subject.instance_variable_get(@target.to_s).__send__(@message)
         end
 
       end

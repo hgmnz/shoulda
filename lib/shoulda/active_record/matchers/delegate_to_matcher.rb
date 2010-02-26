@@ -85,8 +85,8 @@ module Shoulda # :nodoc:
 
         def match_for_associated_model?
           association_responds_to_message? &&
-          associated_model_receives_message? &&
-          subject_and_associated_model_match_message_result?
+            associated_model_receives_message? &&
+            subject_and_associated_model_match_message_result?
         end
 
         def match_for_instance_variable?
@@ -110,7 +110,7 @@ module Shoulda # :nodoc:
         private
 
         def association_responds_to_message?
-          @subject.send(@target).respond_to?(@message)
+          @subject.__send__(@target).respond_to?(@message)
         end
 
         def instance_variable_responds_to_message?

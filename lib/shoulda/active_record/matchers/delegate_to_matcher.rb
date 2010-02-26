@@ -78,6 +78,8 @@ module Shoulda # :nodoc:
             match_for_instance_variable?
           elsif @subject.class.class_variables.include?(@target.to_s)
             match_for_class_variable?
+          elsif @subject.class.constants.include?(@target.to_s)
+            match_for_constant?
           end
         end
 
@@ -100,8 +102,10 @@ module Shoulda # :nodoc:
         end
 
         def match_for_constant?
+          constant_responds_to_message? &&
+            constant_receives_message? &&
+            subject_and_constant_match_message_result?
         end
-
 
         private
 
@@ -114,8 +118,12 @@ module Shoulda # :nodoc:
         end
 
         def class_variable_responds_to_message?
-          @subject.class.
-            __send__(:class_variable_get, @target.to_s).
+          @subject.class.__send__(:class_variable_get, @target).
+            respond_to?(@message)
+        end
+
+        def constant_responds_to_message?
+          eval("#{@subject.class}::#{@target.to_s}").
             respond_to?(@message)
         end
 
@@ -139,6 +147,13 @@ module Shoulda # :nodoc:
           expectation.verified?
         end
 
+        def constant_receives_message?
+          expectation = eval("#{@subject.class}::#{@target.to_s}").
+            expects(@message).at_least_once
+          @subject.__send__(@message)
+          expectation.verified?
+        end
+
         def subject_and_associated_model_match_message_result?
           @subject.__send__(@message) ==
             @subject.__send__(@target).__send__(@message)
@@ -153,6 +168,12 @@ module Shoulda # :nodoc:
           @subject.__send__(@message) ==
             @subject.class.
             __send__(:class_variable_get, @target.to_s).
+            __send__(@message)
+        end
+
+        def subject_and_constant_match_message_result?
+          @subject.__send__(@message) ==
+          eval("#{@subject.class}::#{@target.to_s}").
             __send__(@message)
         end
 

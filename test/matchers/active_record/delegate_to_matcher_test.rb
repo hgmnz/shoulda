@@ -74,4 +74,28 @@ class DelegateToMatcherTest < ActiveSupport::TestCase # :nodoc:
     end
   end
 
+  context "delegating to a constant" do
+    should "accept a constant that responds to the message" do
+      define_model :example do
+        delegate :min, :to => :CONSTANT_ARRAY
+      end
+      #TODO: clean up definition of constant
+      class ::Example
+        CONSTANT_ARRAY = [0, 1, 2]
+      end
+      assert_accepts delegate(:min).to(:CONSTANT_ARRAY), Example.new
+    end
+
+    should "reject a constant that does not respond to the message" do
+      define_model :example do
+        delegate :foo, :to => :CONSTANT_ARRAY
+      end
+      #TODO: clean up definition of constant
+      class ::Example
+        CONSTANT_ARRAY = [0, 1, 2]
+      end
+      assert_rejects delegate(:foo).to(:CONSTANT_ARRAY), Example.new
+    end
+  end
+
 end

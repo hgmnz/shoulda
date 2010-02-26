@@ -31,9 +31,8 @@ module Shoulda # :nodoc:
         # * <tt>to</tt> - association target name
         # * <tt>with_prefix</tt> - tests that the :prefix option is
         #   used by the delegate call.
-        # * <tt>with_allowed_nil</tt> - tests that the :allow_nil 
-        #   option is used by the delegate call.
-        #
+        # * <tt>with_allowed_nil</tt> - tests that there is no failure
+        #   when the target is nil.
 
         def initialize(message)
           @message = message

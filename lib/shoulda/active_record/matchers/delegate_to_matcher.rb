@@ -76,6 +76,8 @@ module Shoulda # :nodoc:
             match_for_associated_model?
           elsif @subject.instance_variables.include?(@target.to_s)
             match_for_instance_variable?
+          elsif @subject.class.class_variables.include?(@target.to_s)
+            match_for_class_variable?
           end
         end
 
@@ -92,6 +94,9 @@ module Shoulda # :nodoc:
         end
 
         def match_for_class_variable?
+          class_variable_responds_to_message? &&
+            class_variable_receives_message? &&
+            subject_and_class_variable_match_message_result?
         end
 
         def match_for_constant?
@@ -108,6 +113,12 @@ module Shoulda # :nodoc:
           @subject.instance_variable_get(@target.to_s).respond_to?(@message)
         end
 
+        def class_variable_responds_to_message?
+          @subject.class.
+            __send__(:class_variable_get, @target.to_s).
+            respond_to?(@message)
+        end
+
         def associated_model_receives_message?
           expectation = @subject.__send__(@target).expects(@message).at_least_once
           @subject.__send__(@message)
@@ -120,6 +131,14 @@ module Shoulda # :nodoc:
           expectation.verified?
         end
 
+        def class_variable_receives_message?
+          expectation = @subject.class.
+            __send__(:class_variable_get, @target.to_s).
+            expects(@message).at_least_once
+          @subject.__send__(@message)
+          expectation.verified?
+        end
+
         def subject_and_associated_model_match_message_result?
           @subject.__send__(@message) ==
             @subject.__send__(@target).__send__(@message)
@@ -128,6 +147,13 @@ module Shoulda # :nodoc:
         def subject_and_instance_variable_match_message_result?
           @subject.__send__(@message) ==
             @subject.instance_variable_get(@target.to_s).__send__(@message)
+        end
+
+        def subject_and_class_variable_match_message_result?
+          @subject.__send__(@message) ==
+            @subject.class.
+            __send__(:class_variable_get, @target.to_s).
+            __send__(@message)
         end
 
       end

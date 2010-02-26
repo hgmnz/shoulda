@@ -50,4 +50,28 @@ class DelegateToMatcherTest < ActiveSupport::TestCase # :nodoc:
     end
   end
 
+  context "delegating to a class variable" do
+    should "accept a class var that responds to the message" do
+      define_model :example do
+        delegate :min, :to => :@@class_array
+      end
+      #TODO: clean up definition of class var
+      class ::Example
+        @@class_array = [0, 1, 2]
+      end
+      assert_accepts delegate(:min).to(:@@class_array), Example.new
+    end
+
+    should "reject a class var that doesn't respond to the message" do
+      define_model :example do
+        delegate :min, :to => :@@class_array
+      end
+      #TODO: clean up definition of class var
+      class ::Example
+        @@class_array = [0, 1, 2]
+      end
+      assert_rejects delegate(:foo).to(:@@class_array), Example.new
+    end
+  end
+
 end

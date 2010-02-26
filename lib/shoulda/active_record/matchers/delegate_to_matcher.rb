@@ -25,7 +25,7 @@ module Shoulda # :nodoc:
         # * The target responds to the message
         # * The target receives the message
         # * The result of the message call to the subject and
-        # the target are the same.
+        #   the target are the same.
         #
         # Options:
         # * <tt>to</tt> - association target name

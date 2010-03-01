@@ -98,4 +98,30 @@ class DelegateToMatcherTest < ActiveSupport::TestCase # :nodoc:
     end
   end
 
+  context "using prefix" do
+    should "accept the prefix option set to true" do
+      define_model :parent, :name => :string do
+        has_many :children
+      end
+      define_model :child, :parent_id => :integer do
+        belongs_to :parent
+        delegate :name, :to => :parent, :prefix => true
+      end
+      @child = Child.create(:parent => Parent.create)
+      assert_accepts delegate(:name).to(:parent).with_prefix(true), @child
+    end
+
+    should "accept a Symbol prefix" do
+      define_model :parent, :name => :string do
+        has_many :children
+      end
+      define_model :child, :parent_id => :integer do
+        belongs_to :parent
+        delegate :name, :to => :parent, :prefix => :dad
+      end
+      @child = Child.create(:parent => Parent.create)
+      assert_accepts delegate(:name).to(:parent).with_prefix(:dad), @child
+    end
+  end
+
 end

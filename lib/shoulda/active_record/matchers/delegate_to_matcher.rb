@@ -36,6 +36,7 @@ module Shoulda # :nodoc:
 
         def initialize(message)
           @message = message
+          @prefix  = ''
         end
 
         def to(target)
@@ -43,8 +44,15 @@ module Shoulda # :nodoc:
           self
         end
 
-        def with_prefix(prefix)
-          @prefix = prefix
+        def with_prefix(prefix = true)
+          if prefix == true
+            _prefix = "#{@target}_"
+          elsif [String, Symbol].include?(prefix.class)
+            _prefix = "#{prefix.to_s}_"
+          else
+            _prefix = ""
+          end
+          @prefix = _prefix
           self
         end
 
@@ -123,24 +131,24 @@ module Shoulda # :nodoc:
         end
 
         def subject_and_associated_model_match_message_result?
-          @subject.__send__(@message) ==
+          @subject.__send__("#{@prefix}#{@message}") ==
             @subject.__send__(@target).__send__(@message)
         end
 
         def subject_and_instance_variable_match_message_result?
-          @subject.__send__(@message) ==
+          @subject.__send__("#{@prefix}#{@message}") ==
             @subject.instance_variable_get(@target.to_s).__send__(@message)
         end
 
         def subject_and_class_variable_match_message_result?
-          @subject.__send__(@message) ==
+          @subject.__send__("#{@prefix}#{@message}") ==
             @subject.class.
             __send__(:class_variable_get, @target.to_s).
             __send__(@message)
         end
 
         def subject_and_constant_match_message_result?
-          @subject.__send__(@message) ==
+          @subject.__send__("#{@prefix}#{@message}") ==
           eval("#{@subject.class}::#{@target.to_s}").
             __send__(@message)
         end

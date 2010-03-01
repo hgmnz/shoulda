@@ -64,7 +64,7 @@ module Shoulda # :nodoc:
         end
 
         def expectation
-          "#{@subject.inspect} to delegate #{@message} to #{@target}"
+          "#{@subject.class} to delegate #{@message} to #{@target}"
         end
 
         def failure_message

@@ -84,25 +84,21 @@ module Shoulda # :nodoc:
 
         def match_for_associated_model?
           association_responds_to_message? &&
-            associated_model_receives_message? &&
             subject_and_associated_model_match_message_result?
         end
 
         def match_for_instance_variable?
           instance_variable_responds_to_message? &&
-            instance_variable_receives_message? &&
             subject_and_instance_variable_match_message_result?
         end
 
         def match_for_class_variable?
           class_variable_responds_to_message? &&
-            class_variable_receives_message? &&
             subject_and_class_variable_match_message_result?
         end
 
         def match_for_constant?
           constant_responds_to_message? &&
-            constant_receives_message? &&
             subject_and_constant_match_message_result?
         end
 
@@ -124,33 +120,6 @@ module Shoulda # :nodoc:
         def constant_responds_to_message?
           eval("#{@subject.class}::#{@target.to_s}").
             respond_to?(@message)
-        end
-
-        def associated_model_receives_message?
-          expectation = @subject.__send__(@target).expects(@message).at_least_once
-          @subject.__send__(@message)
-          expectation.verified?
-        end
-
-        def instance_variable_receives_message?
-          expectation = @subject.instance_variable_get(@target.to_s).expects(@message).at_least_once
-          @subject.__send__(@message)
-          expectation.verified?
-        end
-
-        def class_variable_receives_message?
-          expectation = @subject.class.
-            __send__(:class_variable_get, @target.to_s).
-            expects(@message).at_least_once
-          @subject.__send__(@message)
-          expectation.verified?
-        end
-
-        def constant_receives_message?
-          expectation = eval("#{@subject.class}::#{@target.to_s}").
-            expects(@message).at_least_once
-          @subject.__send__(@message)
-          expectation.verified?
         end
 
         def subject_and_associated_model_match_message_result?

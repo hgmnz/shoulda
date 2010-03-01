@@ -6,8 +6,8 @@ module Shoulda # :nodoc:
       # constant, instance variable or class variable.
       #
       # it { should delegate(:name).to(:parent) }
-      # it { should delegate(:name).to(:parent).with_prefix(:parent) }
-      # it { should delegate(:name).to(:parent).allow_nil(true) }
+      # it { should delegate(:name).to(:parent).with_prefix(:foo) }
+      # it { should delegate(:name).to(:parent).allow_nil }
       # it { should delegate(:name).to(:@ivar) }
       # it { should delegate(:name).to(:@@class_var) }
       # it { should delegate(:name).to(:CONSTANT) }
@@ -23,7 +23,6 @@ module Shoulda # :nodoc:
         # associated model, constant, instance variable
         # or class variable by testing that:
         # * The target responds to the message
-        # * The target receives the message
         # * The result of the message call to the subject and
         #   the target are the same.
         #
@@ -31,8 +30,7 @@ module Shoulda # :nodoc:
         # * <tt>to</tt> - association target name
         # * <tt>with_prefix</tt> - tests that the :prefix option is
         #   used by the delegate call.
-        # * <tt>allow_nil</tt> - tests that there is no failure
-        #   when the target is nil.
+        # * <tt>allow_nil</tt> - tests pass with nil targets.
 
         def initialize(message)
           @message = message

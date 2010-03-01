@@ -124,4 +124,50 @@ class DelegateToMatcherTest < ActiveSupport::TestCase # :nodoc:
     end
   end
 
+  context "using allow_nil" do
+    should "accept a nil parent model" do
+      define_model :parent, :name => :string do
+        has_many :children
+      end
+      define_model :child, :parent_id => :integer do
+        belongs_to :parent
+        delegate :name, :to => :parent, :allow_nil => true
+      end
+      @child = Child.create(:parent => nil)
+      assert_accepts delegate(:name).to(:parent).allow_nil(true), @child
+    end
+
+    should "accept a nil instance variable" do
+      define_model :example do
+        def initialize
+          @instance_array = nil
+        end
+        delegate :min, :to => :@instance_array
+      end
+      assert_accepts delegate(:min).to(:@instance_array).allow_nil, Example.new
+    end
+
+    should "accept a nil class variable" do
+      define_model :example do
+        delegate :min, :to => :@@class_array
+      end
+      #TODO: clean up definition of class var
+      class ::Example
+        @@class_array = nil
+      end
+      assert_accepts delegate(:min).to(:@@class_array).allow_nil, Example.new
+    end
+
+    should "accept a nil constant" do
+      define_model :example do
+        delegate :min, :to => :CONSTANT_ARRAY
+      end
+      #TODO: clean up definition of constant
+      class ::Example
+        CONSTANT_ARRAY = nil
+      end
+      assert_accepts delegate(:min).to(:CONSTANT_ARRAY).allow_nil, Example.new
+    end
+  end
+
 end

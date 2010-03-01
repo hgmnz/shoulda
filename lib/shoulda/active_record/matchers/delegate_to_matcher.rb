@@ -7,7 +7,7 @@ module Shoulda # :nodoc:
       #
       # it { should delegate(:name).to(:parent) }
       # it { should delegate(:name).to(:parent).with_prefix(:parent) }
-      # it { should delegate(:name).to(:parent).with_allowed_nil }
+      # it { should delegate(:name).to(:parent).allow_nil(true) }
       # it { should delegate(:name).to(:@ivar) }
       # it { should delegate(:name).to(:@@class_var) }
       # it { should delegate(:name).to(:CONSTANT) }
@@ -31,7 +31,7 @@ module Shoulda # :nodoc:
         # * <tt>to</tt> - association target name
         # * <tt>with_prefix</tt> - tests that the :prefix option is
         #   used by the delegate call.
-        # * <tt>with_allowed_nil</tt> - tests that there is no failure
+        # * <tt>allow_nil</tt> - tests that there is no failure
         #   when the target is nil.
 
         def initialize(message)
@@ -56,8 +56,8 @@ module Shoulda # :nodoc:
           self
         end
 
-        def with_allowed_nil
-          @allow_nil = true
+        def allow_nil(allowed = true)
+          @allow_nil = allowed
           self
         end
 
@@ -113,44 +113,76 @@ module Shoulda # :nodoc:
         private
 
         def association_responds_to_message?
-          @subject.__send__(@target).respond_to?(@message)
+          if !@subject.__send__(@target).nil?
+            @subject.__send__(@target).respond_to?(@message)
+          else
+            @allow_nil
+          end
         end
 
         def instance_variable_responds_to_message?
-          @subject.instance_variable_get(@target.to_s).respond_to?(@message)
+          if !@subject.instance_variable_get(@target.to_s).nil?
+            @subject.instance_variable_get(@target.to_s).respond_to?(@message)
+          else
+            @allow_nil
+          end
         end
 
         def class_variable_responds_to_message?
-          @subject.class.__send__(:class_variable_get, @target).
-            respond_to?(@message)
+          if !@subject.class.__send__(:class_variable_get, @target).nil?
+            @subject.class.__send__(:class_variable_get, @target).
+              respond_to?(@message)
+          else
+            @allow_nil
+          end
         end
 
         def constant_responds_to_message?
-          eval("#{@subject.class}::#{@target.to_s}").
-            respond_to?(@message)
+          if !@subject.class.const_get(@target).nil?
+            @subject.class.const_get(@target).
+              respond_to?(@message)
+          else
+            @allow_nil
+          end
         end
 
         def subject_and_associated_model_match_message_result?
-          @subject.__send__("#{@prefix}#{@message}") ==
-            @subject.__send__(@target).__send__(@message)
+          if !@subject.__send__(@target).nil?
+            @subject.__send__("#{@prefix}#{@message}") ==
+              @subject.__send__(@target).__send__(@message)
+          else
+            @allow_nil
+          end
         end
 
         def subject_and_instance_variable_match_message_result?
-          @subject.__send__("#{@prefix}#{@message}") ==
-            @subject.instance_variable_get(@target.to_s).__send__(@message)
+          if !@subject.instance_variable_get(@target.to_s).nil?
+            @subject.__send__("#{@prefix}#{@message}") ==
+              @subject.instance_variable_get(@target.to_s).__send__(@message)
+          else
+            @allow_nil
+          end
         end
 
         def subject_and_class_variable_match_message_result?
-          @subject.__send__("#{@prefix}#{@message}") ==
-            @subject.class.
-            __send__(:class_variable_get, @target.to_s).
-            __send__(@message)
+          if !@subject.class.__send__(:class_variable_get, @target).nil?
+            @subject.__send__("#{@prefix}#{@message}") ==
+              @subject.class.
+              __send__(:class_variable_get, @target.to_s).
+              __send__(@message)
+          else
+            @allow_nil
+          end
         end
 
         def subject_and_constant_match_message_result?
-          @subject.__send__("#{@prefix}#{@message}") ==
-          eval("#{@subject.class}::#{@target.to_s}").
-            __send__(@message)
+          if !@subject.class.const_get(@target).nil?
+            @subject.__send__("#{@prefix}#{@message}") ==
+            @subject.class.const_get(@target).
+              __send__(@message)
+          else
+            @allow_nil
+          end
         end
 
       end
